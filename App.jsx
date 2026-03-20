@@ -1,40 +1,74 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import {
-  Plus,
-  ChevronDown,
-  AlertTriangle,
-  Wallet,
-  CircleDot,
-  CheckCircle2,
-} from 'lucide-react';
+import { useEffect, useState } from "react";
 
-const STORAGE_KEY = 'monthly-bills-dashboard-app-v1';
+export default function App() {
+  const [bills, setBills] = useState(() => {
+    const saved = localStorage.getItem("bills");
+    return saved ? JSON.parse(saved) : [];
+  });
 
-const initialBills = [
-  {
-    id: 1,
-    monthLabel: "Mar '26",
-    title: 'Wifey Borrow for Overhauling',
-    amount: 4000,
-    dueDate: '2026-04-01',
-    status: 'Unpaid',
-  },
-  {
-    id: 2,
-    monthLabel: "Mar '26",
-    title: 'Paluwagan',
-    amount: 2500,
-    dueDate: '2026-04-01',
-    status: 'Unpaid',
-  },
-  {
-    id: 3,
-    monthLabel: "Mar '26",
-    title: 'Paylater',
-    amount: 1296,
-    dueDate: '2026-03-27',
-    status: 'Unpaid',
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+
+  useEffect(() => {
+    localStorage.setItem("bills", JSON.stringify(bills));
+  }, [bills]);
+
+  const addBill = () => {
+    if (!name || !amount) return;
+
+    const newBill = {
+      id: Date.now(),
+      name,
+      amount: Number(amount),
+    };
+
+    setBills([...bills, newBill]);
+    setName("");
+    setAmount("");
+  };
+
+  const total = bills.reduce((sum, bill) => sum + bill.amount, 0);
+
+  return (
+    <div className="p-4 max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Monthly Bills Dashboard</h1>
+
+      <div className="mb-4">
+        <input
+          className="border p-2 w-full mb-2"
+          placeholder="Bill Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          className="border p-2 w-full mb-2"
+          type="number"
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
+        <button
+          className="bg-blue-500 text-white px-4 py-2 w-full"
+          onClick={addBill}
+        >
+          Add Bill
+        </button>
+      </div>
+
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold">Total: ₱{total}</h2>
+      </div>
+
+      <ul>
+        {bills.map((bill) => (
+          <li key={bill.id} className="border p-2 mb-2">
+            {bill.name} - ₱{bill.amount}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}    status: 'Unpaid',
   },
   {
     id: 4,
