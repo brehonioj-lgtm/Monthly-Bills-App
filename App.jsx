@@ -1,74 +1,40 @@
-import { useEffect, useState } from "react";
+              import React, { useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Plus,
+  ChevronDown,
+  AlertTriangle,
+  Wallet,
+  CircleDot,
+  CheckCircle2,
+} from 'lucide-react';
 
-export default function App() {
-  const [bills, setBills] = useState(() => {
-    const saved = localStorage.getItem("bills");
-    return saved ? JSON.parse(saved) : [];
-  });
+const STORAGE_KEY = 'monthly-bills-dashboard-app-v1';
 
-  const [name, setName] = useState("");
-  const [amount, setAmount] = useState("");
-
-  useEffect(() => {
-    localStorage.setItem("bills", JSON.stringify(bills));
-  }, [bills]);
-
-  const addBill = () => {
-    if (!name || !amount) return;
-
-    const newBill = {
-      id: Date.now(),
-      name,
-      amount: Number(amount),
-    };
-
-    setBills([...bills, newBill]);
-    setName("");
-    setAmount("");
-  };
-
-  const total = bills.reduce((sum, bill) => sum + bill.amount, 0);
-
-  return (
-    <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Monthly Bills Dashboard</h1>
-
-      <div className="mb-4">
-        <input
-          className="border p-2 w-full mb-2"
-          placeholder="Bill Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          className="border p-2 w-full mb-2"
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-        <button
-          className="bg-blue-500 text-white px-4 py-2 w-full"
-          onClick={addBill}
-        >
-          Add Bill
-        </button>
-      </div>
-
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold">Total: ₱{total}</h2>
-      </div>
-
-      <ul>
-        {bills.map((bill) => (
-          <li key={bill.id} className="border p-2 mb-2">
-            {bill.name} - ₱{bill.amount}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}    status: 'Unpaid',
+const initialBills = [
+  {
+    id: 1,
+    monthLabel: "Mar '26",
+    title: 'Wifey Borrow for Overhauling',
+    amount: 4000,
+    dueDate: '2026-04-01',
+    status: 'Unpaid',
+  },
+  {
+    id: 2,
+    monthLabel: "Mar '26",
+    title: 'Paluwagan',
+    amount: 2500,
+    dueDate: '2026-04-01',
+    status: 'Unpaid',
+  },
+  {
+    id: 3,
+    monthLabel: "Mar '26",
+    title: 'Paylater',
+    amount: 1296,
+    dueDate: '2026-03-27',
+    status: 'Unpaid',
   },
   {
     id: 4,
@@ -220,6 +186,7 @@ export default function App() {
       return initialBills;
     }
   });
+
   const [showForm, setShowForm] = useState(false);
   const [showPaidSection, setShowPaidSection] = useState(false);
   const [showAllBills, setShowAllBills] = useState(true);
@@ -305,6 +272,7 @@ export default function App() {
               <Plus className="h-5 w-5" />
               Add New Bill
             </motion.button>
+
             <button
               onClick={resetDemoData}
               className="rounded-[24px] border border-neutral-300 bg-white px-4 py-4 text-sm font-bold text-neutral-700 shadow-sm"
@@ -384,7 +352,9 @@ export default function App() {
                     {nextDueSoon ? `• in ${daysDiff(nextDueSoon.dueDate)} days` : ''}
                   </div>
                 </div>
-                <div className="text-right text-3xl font-bold text-neutral-900">{peso(totals.dueSoon)}</div>
+                <div className="text-right text-3xl font-bold text-neutral-900">
+                  {peso(totals.dueSoon)}
+                </div>
               </div>
             </Card>
           </div>
@@ -404,19 +374,25 @@ export default function App() {
                 </div>
               </div>
             </div>
+
             <div className="mt-4 flex items-center gap-3">
               <div className="h-4 flex-1 overflow-hidden rounded-full bg-neutral-200">
                 <div className="h-full rounded-full bg-green-600" style={{ width: `${progress}%` }} />
               </div>
               <div className="text-2xl text-neutral-500">{progress}%</div>
             </div>
+
             <div className="mt-4 grid grid-cols-2 gap-3 rounded-[22px] bg-neutral-50 p-3">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Remaining</div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                  Remaining
+                </div>
                 <div className="mt-1 text-xl font-bold text-neutral-900">{peso(remaining)}</div>
               </div>
               <div className="text-right">
-                <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Bills Paid</div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                  Bills Paid
+                </div>
                 <div className="mt-1 text-xl font-bold text-green-700">{paidBills.length}</div>
               </div>
             </div>
@@ -429,11 +405,18 @@ export default function App() {
             >
               <CircleDot className="h-7 w-7 text-amber-400" />
               <div className="text-[18px] font-bold text-neutral-900">Bills Paid</div>
-              <ChevronDown className={`h-6 w-6 text-neutral-500 transition-transform ${showPaidSection ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`h-6 w-6 text-neutral-500 transition-transform ${
+                  showPaidSection ? 'rotate-180' : ''
+                }`}
+              />
             </button>
+
             {showPaidSection ? (
               paidBills.length ? (
-                paidBills.map((bill) => <BillRow key={bill.id} bill={bill} onToggleStatus={toggleStatus} />)
+                paidBills.map((bill) => (
+                  <BillRow key={bill.id} bill={bill} onToggleStatus={toggleStatus} />
+                ))
               ) : (
                 <EmptyState text="No paid bills yet." />
               )
@@ -448,7 +431,9 @@ export default function App() {
               rightText={dueSoonBills[0]?.monthLabel || ''}
             />
             {dueSoonBills.length ? (
-              dueSoonBills.slice(0, 2).map((bill) => <BillRow key={bill.id} bill={bill} onToggleStatus={toggleStatus} />)
+              dueSoonBills
+                .slice(0, 2)
+                .map((bill) => <BillRow key={bill.id} bill={bill} onToggleStatus={toggleStatus} />)
             ) : (
               <EmptyState text="No due soon bills." />
             )}
@@ -462,7 +447,9 @@ export default function App() {
               rightText={overdueBills[0]?.monthLabel || ''}
             />
             {overdueBills.length ? (
-              overdueBills.slice(0, 1).map((bill) => <BillRow key={bill.id} bill={bill} onToggleStatus={toggleStatus} />)
+              overdueBills
+                .slice(0, 1)
+                .map((bill) => <BillRow key={bill.id} bill={bill} onToggleStatus={toggleStatus} />)
             ) : (
               <EmptyState text="No overdue bills." />
             )}
@@ -477,9 +464,12 @@ export default function App() {
                 rightText=""
               />
             </button>
+
             {showAllBills ? (
               sortedBills.length ? (
-                sortedBills.map((bill) => <BillRow key={bill.id} bill={bill} onToggleStatus={toggleStatus} />)
+                sortedBills.map((bill) => (
+                  <BillRow key={bill.id} bill={bill} onToggleStatus={toggleStatus} />
+                ))
               ) : (
                 <EmptyState text="No bills yet." />
               )
@@ -489,4 +479,4 @@ export default function App() {
       </div>
     </div>
   );
-}
+                        }
